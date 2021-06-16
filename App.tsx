@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
     Dimensions,
@@ -21,7 +21,31 @@ interface ImageSelected {
 }
 
 export default function App() {
+    const [contextLogo, setContextLogo] = useState(null as any);
     const [imageSelected, setImageSelected] = useState<ImageSelected|null>(null);
+
+    useEffect(() => {
+        fetchImage();
+    }, []);
+
+    const fetchImage = async () => {
+        const headers = new Headers();
+        headers.append(
+            "Authorization",
+            "ML753BSmTZzdvu7dJgJ05RPoCGRBWRdddRv1FD9bVjQ"
+        );
+        const parms = {
+            method: "GET",
+            headers,
+        };
+
+        const response = await fetch(
+            "https://api.unsplash.com/photos/random?client_id=MBHpyxQMkz8yn9nnolr0rWUZ0lm0FX_n47ZgZ8RBX_I",
+            parms
+        );
+        const contextLogoData = await response.json();
+        setContextLogo(contextLogoData);
+    }
 
     const startImagePicker = async () => {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -56,11 +80,9 @@ export default function App() {
                 <Text style={styles.title}>Bem vindo ao image selector!</Text>
             </View>
             <View style={styles.imageArea}>
-                {
-                  imageSelected 
-                    ? <Image style={styles.image} source={{ uri: imageSelected.localUri }} />
-                    : <Image style={styles.image} source={fav} />
-                }
+                { imageSelected && <Image style={styles.image} source={{ uri: imageSelected.localUri }} /> }
+                { imageSelected === null && contextLogo && <Image style={styles.image} source={{ uri: contextLogo.urls.small }} />  }
+                { imageSelected === null && contextLogo === null && <Image style={styles.image} source={fav} /> }
             </View>
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.button} onPress={startImagePicker}>
