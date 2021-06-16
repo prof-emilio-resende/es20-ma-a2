@@ -9,8 +9,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import * as ImagePicker from "expo-image-picker";
+import * as ExpoSharing from "expo-sharing";
 
 import fav from "./assets/favicon.png";
 
@@ -37,6 +39,17 @@ export default function App() {
       setImageSelected(imageObj);
     }
 
+    const openShareDialogAsync = async () => {
+        if (imageSelected === null) {
+            alert('por favor selecione uma imagem');
+            return;
+        }
+
+        await ExpoSharing.shareAsync(
+            imageSelected.localUri
+        );
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.text}>
@@ -51,10 +64,18 @@ export default function App() {
             </View>
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.button} onPress={startImagePicker}>
-                    <Text>Selecionar Imagem</Text>
+                    <Text style={styles.buttonText}>Selecionar Imagem</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Text>Compartilhar</Text>
+                <TouchableOpacity 
+                    style={[styles.button, styles.buttonShare]}
+                    onPress={openShareDialogAsync}
+                >
+                    <Ionicons 
+                        name="share-outline"
+                        size={16}
+                        style={styles.buttonText}
+                    />
+                    <Text style={styles.buttonText}>Compartilhar</Text>
                 </TouchableOpacity>
             </View>
             <StatusBar style="auto" />
@@ -112,6 +133,15 @@ const styles = StyleSheet.create({
                 borderRadius: 15,
             },
         }),
+    },
+    buttonShare: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    buttonText: {
+        color: "#333",
     },
     image: {
       width: 100,
